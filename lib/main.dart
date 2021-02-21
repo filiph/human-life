@@ -9,10 +9,12 @@ void main() {
 class HumanLifeApp extends StatelessWidget {
   final settings = HumanLifeSettings();
 
+  static const appName = 'Human Life Counter';
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Human Life Counter',
+      title: appName,
       theme: ThemeData(
         primaryColor: Color(0xFF38618C),
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -28,13 +30,13 @@ class HumanLifeApp extends StatelessWidget {
 class HumanLifePage extends StatelessWidget {
   final HumanLifeSettings settings;
 
-  const HumanLifePage({this.settings});
+  const HumanLifePage({required this.settings});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Human Life Counter'),
+        title: Text(HumanLifeApp.appName),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -267,10 +269,10 @@ class AgeSlider extends StatefulWidget {
   final void Function(int) onChanged;
 
   const AgeSlider({
-    @required this.label,
-    @required this.initialValue,
-    @required this.onChanged,
-    Key key,
+    required this.label,
+    required this.initialValue,
+    required this.onChanged,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -285,7 +287,7 @@ class _AgeSliderState extends State<AgeSlider> {
     _outValue = _value.round();
   }
 
-  double _value;
+  double _value = -1;
 
   int _outValue = -1;
 
