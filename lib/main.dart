@@ -34,20 +34,40 @@ class HumanLifePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(HumanLifeApp.appName),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(flex: 17, child: HumanLifeVisualization(settings)),
-          // Make sure there's enough space at the bottom that the bottom sheet
-          // can cover.
-          Expanded(flex: 3, child: SizedBox()),
-        ],
-      ),
-      bottomSheet: CustomizationDrawer(settings),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        if (constraints.maxWidth < 600) {
+          // Narrow: use "mobile" UI.
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(HumanLifeApp.appName),
+            ),
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(flex: 17, child: HumanLifeVisualization(settings)),
+                // Make sure there's enough space at the bottom that the bottom sheet
+                // can cover.
+                Expanded(flex: 3, child: SizedBox()),
+              ],
+            ),
+            bottomSheet: CustomizationDrawer(settings),
+          );
+        }
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(HumanLifeApp.appName),
+          ),
+          body: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                  flex: 3, child: CustomizationListView(settings: settings)),
+              Expanded(flex: 7, child: HumanLifeVisualization(settings)),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -187,40 +207,66 @@ class CustomizationDrawer extends StatelessWidget {
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(left: 16, right: 16),
-              child: ListView(
-                controller: scrollController,
-                children: [
-                  SizedBox(height: 32),
-                  Row(
-                    children: [
-                      Text(
-                        'Pull up to customize ',
-                        style: Theme.of(context).textTheme.headline6,
-                      ),
-                      Icon(Icons.arrow_upward_rounded),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Text("What's this about? The app visualizes a human life "
-                      "as a series of squares. Each square represents "
-                      "a single week of life.\n\n"
-                      "Light blue squares are already in the past. "
-                      "Light green squares are upcoming active life. "
-                      "Dark green squares are the weeks after that.\n\n"
-                      "How you define ‘active life’ is up to you.\n\n"
-                      "Try to look past the depressing part and instead "
-                      "think about this as motivational.\n\n"
-                      "Inspired by the article ‘Tail End’ "
-                      "at Wait But Why."),
-                  SizedBox(height: 32),
-                  HumanLifeCustomization(settings),
-                  SizedBox(height: 32),
-                ],
+              child: CustomizationListView(
+                settings: settings,
+                scrollController: scrollController,
+                showPullUpHint: true,
               ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class CustomizationListView extends StatelessWidget {
+  const CustomizationListView({
+    required this.settings,
+    this.scrollController,
+    this.showPullUpHint = false,
+    Key? key,
+  }) : super(key: key);
+
+  final HumanLifeSettings settings;
+
+  final ScrollController? scrollController;
+
+  final bool showPullUpHint;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      controller: scrollController,
+      padding: const EdgeInsets.only(left: 16),
+      children: [
+        if (showPullUpHint) SizedBox(height: 32),
+        if (showPullUpHint)
+          Row(
+            children: [
+              Text(
+                'Pull up to customize ',
+                style: Theme.of(context).textTheme.headline6,
+              ),
+              Icon(Icons.arrow_upward_rounded),
+            ],
+          ),
+        SizedBox(height: 16),
+        Text("What's this about? The app visualizes a human life "
+            "as a series of squares. Each square represents "
+            "a single week of life.\n\n"
+            "Light blue squares are already in the past. "
+            "Light green squares are upcoming active life. "
+            "Dark green squares are the weeks after that.\n\n"
+            "How you define ‘active life’ is up to you.\n\n"
+            "Try to look past the depressing part and instead "
+            "think about this as motivational.\n\n"
+            "Inspired by the article ‘Tail End’ "
+            "at Wait But Why."),
+        SizedBox(height: 32),
+        HumanLifeCustomization(settings),
+        SizedBox(height: 32),
+      ],
     );
   }
 }
@@ -295,9 +341,12 @@ class _AgeSliderState extends State<AgeSlider> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          '${widget.label}: $_outValue years',
-          style: Theme.of(context).textTheme.headline6,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
+            '${widget.label}: $_outValue years',
+            style: Theme.of(context).textTheme.headline6,
+          ),
         ),
         Slider(
           value: _value,
